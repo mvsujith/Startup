@@ -1,0 +1,1250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Front-Facing 3D Plane (Laptop Screen)</title>
+    <style>
+      html, body { height: 100%; margin: 0; background: #0b0f17; }
+      #app { position: fixed; inset: 0; }
+
+      /* Popup list under the Components button */
+      .menu-popup {
+        position: fixed; left: 12px; top: 48px; z-index: 1001;
+        display: none; min-width: 180px;
+        background: #111827; border: 1px solid #233043; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        overflow: hidden;
+      }
+
+      /* Transform toolbar (top-right) */
+      .tfbar {
+        position: fixed; right: 12px; top: 12px; z-index: 12;
+        display: flex; gap: 8px; background: rgba(17,24,39,.8);
+        border: 1px solid #233043; border-radius: 10px; padding: 6px;
+        box-shadow: 0 6px 16px rgba(0,0,0,.35);
+      }
+      .tfbtn {
+        min-width: 36px; height: 32px; border-radius: 8px; border: 1px solid #2a3a52;
+        background: #1e293b; color: #cbd5e1; cursor: pointer; padding: 0 10px;
+      }
+      .tfbtn:hover { background: #253043; color: #a7f3d0; }
+      .tfbtn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+      .menu-popup.open { display: block; }
+  .menu-item { display: block; width: 100%; text-align: left; padding: 10px 12px; background: transparent; color: #cbd5e1; border: 0; cursor: pointer; font: 14px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+      .menu-item:hover { background: #1f2937; color: #a7f3d0; }
+  .menu-item[draggable="true"] { cursor: grab; }
+
+      .label { position: fixed; right: 12px; bottom: 12px; color: #9fc; font: 13px/1.4 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; opacity: 0.8; z-index: 5; }
+      .label b { color: #fff; opacity: 0.9; }
+
+      /* Single Components button (no menu) */
+      .components-btn {
+        position: fixed; left: 12px; top: 12px; z-index: 1002;
+        background: #1e293b; color: #e2e8f0; border: 1px solid #233043; border-radius: 8px;
+        padding: 8px 12px; cursor: pointer; font: 14px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      }
+      .components-btn:hover { background: #253043; color: #a7f3d0; border-color: #2a3a52; }
+      
+      /* Wire button */
+      .wire-btn {
+        position: fixed; left: 12px; top: 60px; z-index: 1000;
+        background: #1e293b; color: #e2e8f0; border: 1px solid #233043; border-radius: 8px;
+        padding: 8px 12px; cursor: pointer; font: 14px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        transition: all 0.2s ease;
+      }
+      .wire-btn:hover { background: #253043; color: #a7f3d0; border-color: #2a3a52; }
+      .wire-btn.active { 
+        background: #059669; color: #fff; border-color: #059669;
+        animation: wirePulse 2s infinite;
+      }
+      
+      @keyframes wirePulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.4); }
+        50% { box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); }
+      }
+      
+      /* Wiring status */
+      .wiring-status {
+        position: fixed; left: 12px; top: 108px; z-index: 999;
+        background: rgba(17, 24, 39, 0.9); color: #cbd5e1; border: 1px solid #233043;
+        border-radius: 6px; padding: 6px 10px; font: 12px/1.3 system-ui;
+        display: none; max-width: 280px;
+      }
+      .wiring-status.show { display: block; }
+      
+      input[type="file"] { display: none; }
+
+      /* Resistor settings panel (top-center) */
+      .resistor-panel {
+        position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+        z-index: 1200;
+        background: rgba(17,24,39,0.95);
+        border: 1px solid #233043; border-radius: 10px; padding: 10px 12px;
+        box-shadow: 0 6px 16px rgba(0,0,0,.35);
+        color: #e2e8f0; font: 14px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        display: none; gap: 8px; align-items: center;
+      }
+      .resistor-panel.show { display: flex; }
+      .resistor-panel label { margin-right: 6px; opacity: 0.9; }
+      .resistor-panel input[type="number"] { width: 90px; padding: 6px 8px; background:#0f172a; color:#e2e8f0; border:1px solid #334155; border-radius:6px; }
+      .resistor-panel select { padding: 6px 8px; background:#0f172a; color:#e2e8f0; border:1px solid #334155; border-radius:6px; }
+      .resistor-panel .ohms { margin-left: 6px; opacity: 0.8; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <!-- Single Components button and hidden file input -->
+    <button id="componentsBtn" class="components-btn" title="Choose a component to add">Components</button>
+    <button id="wireBtn" class="wire-btn" title="Add wires between components">Add Wire</button>
+    <div id="wiringStatus" class="wiring-status">Click on component pins to connect them</div>
+    <input id="filePicker" type="file" accept=".glb,.gltf" />
+    <div id="componentsMenu" class="menu-popup" role="menu" aria-label="Components">
+      <button class="menu-item" data-component="resistor" data-file="./lowpoly_resistor.glb" draggable="true">Resistor</button>
+      <button class="menu-item" data-component="battery" data-file="./battery.glb" draggable="true">Battery</button>
+    </div>
+    <div id="app"></div>
+  <div class="label" id="status">Click Components → drag “Resistor” onto the grid • Or drop a .glb</div>
+    <div class="tfbar" aria-label="Transform toolbar">
+      <button class="tfbtn" id="btnTranslate" title="Translate (G)">↕</button>
+      <button class="tfbtn" id="btnRotate" title="Rotate (R)">⟳</button>
+      <button class="tfbtn" id="btnScale" title="Scale (S)">⤢</button>
+    </div>
+    <!-- Resistor control panel -->
+    <div id="resistorPanel" class="resistor-panel" role="dialog" aria-label="Resistor settings">
+      <label for="resistValue">Resistance</label>
+      <input id="resistValue" type="number" min="0" step="0.1" value="1" />
+      <select id="resistUnit">
+        <option value="ohm">Ω</option>
+        <option value="k">kΩ</option>
+        <option value="M">MΩ</option>
+      </select>
+      <span class="ohms" id="resistOhms">= 1 Ω</span>
+    </div>
+
+    <!-- ES Modules with import map for three.js so loaders resolve 'three' -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from 'three';
+      import { RoomEnvironment } from 'https://unpkg.com/three@0.160.0/examples/jsm/environments/RoomEnvironment.js';
+      import { OrbitControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+      import { TransformControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/TransformControls.js';
+      // Scene
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0b0f17);
+
+      // Camera: place it on +Z axis, looking straight at the origin (no tilt)
+      const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(0, 0, 3);
+      camera.lookAt(0, 0, 0);
+
+      // Renderer
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+  // Modern color management for GLTF/PBR
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.physicallyCorrectLights = true;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.getElementById('app').appendChild(renderer.domElement);
+
+      // Orbit controls (keep straight view by disabling rotate)
+      const orbit = new OrbitControls(camera, renderer.domElement);
+      orbit.enableRotate = false; // keep laptop-like straight view
+      orbit.enableDamping = true; 
+      orbit.dampingFactor = 0.08; // Smoother damping for zoom
+      orbit.enablePan = true; 
+      orbit.screenSpacePanning = true;
+      
+      // Smooth zoom configuration
+      orbit.enableZoom = true;
+      orbit.zoomSpeed = 10; // Slower, more controlled zoom
+      orbit.minDistance = 0.5; // Don't zoom too close
+      orbit.maxDistance = 15; // Don't zoom too far
+      orbit.zoomToCursor = true; // Zoom towards cursor position
+
+      // Transform controls
+      const tControls = new TransformControls(camera, renderer.domElement);
+      tControls.setMode('translate');
+      tControls.addEventListener('dragging-changed', (ev) => {
+        orbit.enabled = !ev.value;
+      });
+      // Keep Z locked to near-zero to stay on the grid plane
+      tControls.addEventListener('objectChange', () => {
+        if (tControls.object) {
+          tControls.object.position.z = 0.01;
+        }
+        updateToolbar();
+      });
+      scene.add(tControls);
+
+      // Keep a list of pickable root models for selection
+      const pickables = [];
+      window.pickables = pickables;
+
+  // Add lights so GLTF PBR materials aren’t black
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x223344, 0.6);
+  scene.add(hemi);
+  const dir = new THREE.DirectionalLight(0xffffff, 1.0);
+  dir.position.set(3, 4, 5);
+  scene.add(dir);
+
+  // Subtle image-based lighting for nicer materials
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+
+  // Invisible drop surface: large XY plane for raycasting only (not visible)
+  const dropPlaneGeo = new THREE.PlaneGeometry(100, 100, 1, 1);
+  const dropPlaneMat = new THREE.MeshBasicMaterial({ visible: false });
+  const dropPlane = new THREE.Mesh(dropPlaneGeo, dropPlaneMat);
+  dropPlane.position.set(0, 0, 0);
+  dropPlane.rotation.set(0, 0, 0);
+  scene.add(dropPlane);
+
+  // Subtle grid backdrop for depth perception (optional aesthetic)
+  const grid = new THREE.GridHelper(6, 36, 0x232a3a, 0x2b3446);
+  grid.rotation.x = Math.PI / 2; // rotate into XY so it sits behind the origin
+  grid.position.z = -0.1; // slightly behind origin to avoid z-fighting
+      scene.add(grid);
+
+      // Simple animation loop (plane remains facing straight)
+      function animate() {
+        requestAnimationFrame(animate);
+        orbit.update();
+        // Keep wires flexible and updated as components move
+        try { if (window.wireManager) window.wireManager.update(); } catch {}
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Handle window resize to keep view straight and full screen
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // Helpful: Ctrl+R to reset camera to a front, centered view
+      window.addEventListener('keydown', (e) => {
+        if (e.key.toLowerCase() === 'r' && (e.ctrlKey || e.metaKey)) {
+          camera.position.set(0, 0, 3);
+          camera.lookAt(0, 0, 0);
+        }
+      });
+
+      // Expose references for module-based loaders and handlers
+      window.scene = scene;
+      window.camera = camera;
+      window.renderer = renderer;
+      window.dropPlane = dropPlane;
+      window.grid = grid;
+      window.transformControls = tControls;
+      // Attach transform gizmo to a model (prefer its pivot if present)
+      window.setSelectedModel = (obj) => {
+        // Early log even if something fails later
+        console.log('[setSelectedModel] invoked for', obj?.name || '[no-name]');
+        try {
+          if (!obj) { console.log('[setSelectedModel] aborted: null object'); return; }
+          const target = obj?.userData?.pivot || obj;
+          tControls.attach(target);
+          updateToolbar();
+          syncZoomLock();
+          window.selectedModelRef = obj;
+          // Robust componentType detection with proper parentheses
+          if (!obj.userData.componentType) {
+            const fp = (obj.userData.filePath || '').toLowerCase();
+            if (fp.includes('battery')) obj.userData.componentType = 'battery';
+            else if (fp.includes('resistor')) obj.userData.componentType = 'resistor';
+          }
+          // Fallback heuristic if still missing
+          if (!obj.userData.componentType) {
+            let terminalCount = 0;
+            obj.traverse(ch => { if (ch.userData?.isPinMarker && ch.userData.pinType === 'terminal') terminalCount++; });
+            if (terminalCount === 2) obj.userData.componentType = 'resistor';
+          }
+          const typeBeforePanel = obj.userData.componentType;
+          console.log('[setSelectedModel] detected type:', typeBeforePanel);
+          if (typeof updateResistorPanelFor === 'function') {
+            updateResistorPanelFor(obj);
+          } else {
+            console.log('[setSelectedModel] panel functions not ready yet');
+          }
+          console.log('[Selection] Model selected:', obj.userData.componentType || obj.name || 'unknown');
+        } catch (err) {
+          console.log('[setSelectedModel] error', err);
+        }
+      };
+      window.clearSelectedModel = () => {
+        try {
+          tControls.detach();
+          updateToolbar();
+          syncZoomLock();
+          window.selectedModelRef = null;
+          hideResistorPanel();
+          console.log('[Selection] Model cleared');
+        } catch {}
+      };
+
+      // Toolbar + keyboard shortcuts (G/R/S)
+      const btnT = document.getElementById('btnTranslate');
+      const btnR = document.getElementById('btnRotate');
+      const btnS = document.getElementById('btnScale');
+      function currentMode() { return tControls.getMode?.() || tControls.mode; }
+      function syncZoomLock() {
+        // Disable camera zoom when scaling a selected object, so only the model scales
+        const selected = !!tControls.object;
+        const isScale = currentMode() === 'scale';
+        orbit.enableZoom = !(selected && isScale);
+      }
+      function setMode(mode) {
+        tControls.setMode(mode);
+        updateToolbar();
+        syncZoomLock();
+      }
+      function updateToolbar() {
+        const mode = currentMode();
+        btnT.classList.toggle('active', mode === 'translate');
+        btnR.classList.toggle('active', mode === 'rotate');
+        btnS.classList.toggle('active', mode === 'scale');
+      }
+      btnT.addEventListener('click', () => setMode('translate'));
+      btnR.addEventListener('click', () => setMode('rotate'));
+      btnS.addEventListener('click', () => setMode('scale'));
+      window.addEventListener('keydown', (e) => {
+        const k = e.key.toLowerCase();
+        if (k === 'g' && !e.ctrlKey && !e.metaKey) { e.preventDefault(); setMode('translate'); }
+        if (k === 'r' && !e.ctrlKey && !e.metaKey) { e.preventDefault(); setMode('rotate'); }
+        if (k === 's' && !e.ctrlKey && !e.metaKey) { e.preventDefault(); setMode('scale'); }
+      });
+
+      // Uniform scale on mouse wheel when a model is selected AND scale mode is active
+      const SCALE_MIN = 0.05;
+      const SCALE_MAX = 10;
+      const SCALE_SENS = 0.0015; // smaller = finer control
+      renderer.domElement.addEventListener('wheel', (e) => {
+        if (!tControls.object) return; // allow normal zoom when nothing selected
+        const mode = tControls.getMode?.() || tControls.mode || 'translate';
+        if (mode !== 'scale') return; // only scale when user chose Scale tool
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        const obj = tControls.object;
+        const current = Math.max(obj.scale.x, obj.scale.y, obj.scale.z);
+        const factor = Math.exp(-e.deltaY * SCALE_SENS); // wheel up => grow
+        const next = THREE.MathUtils.clamp(current * factor, SCALE_MIN, SCALE_MAX);
+        obj.scale.setScalar(next);
+      }, { passive: false });
+
+      // Click selection via raycast on pickables
+      const clickRay = new THREE.Raycaster();
+      const clickNDC = new THREE.Vector2();
+      function setNDCFromEvent(ev) {
+        const rect = renderer.domElement.getBoundingClientRect();
+        clickNDC.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+        clickNDC.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+      }
+      function getPickableRoot(obj) {
+        let p = obj;
+        while (p && !pickables.includes(p)) p = p.parent;
+        return p || null;
+      }
+      renderer.domElement.addEventListener('pointerup', (ev) => {
+        if (ev.button !== 0) return; // left click only
+        setNDCFromEvent(ev);
+        clickRay.setFromCamera(clickNDC, camera);
+        const hits = clickRay.intersectObjects(pickables, true);
+        if (hits.length) {
+          const root = getPickableRoot(hits[0].object);
+          if (root) { window.setSelectedModel(root); return; }
+        }
+        // Clicked empty space -> deselect
+        window.clearSelectedModel();
+      });
+    </script>
+
+    <!-- Module for drag & drop GLB loading onto the plane using GLTFLoader -->
+    <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+
+  const scene = window.scene;
+  const mCamera = window.camera;
+  const mRenderer = window.renderer;
+  const mDropPlane = window.dropPlane;
+  const mGrid = window.grid;
+  const mTControls = window.transformControls;
+      const statusEl = document.getElementById('status');
+      const btn = document.getElementById('componentsBtn');
+      const filePicker = document.getElementById('filePicker');
+    const menu = document.getElementById('componentsMenu');
+      const resistorPanel = document.getElementById('resistorPanel');
+      const resistValueEl = document.getElementById('resistValue');
+      const resistUnitEl = document.getElementById('resistUnit');
+      const resistOhmsEl = document.getElementById('resistOhms');
+      console.log('[PanelInit] Panel elements ready?', !!resistorPanel);
+
+      // Helper: wrap a model with a pivot at its visual center so gizmo appears centered
+      function wrapWithCenteredPivot(root) {
+        try {
+          root.updateMatrixWorld(true);
+          const box = new THREE.Box3().setFromObject(root);
+          if (!isFinite(box.min.x) || !isFinite(box.max.x)) return root; // guard
+          const centerWorld = box.getCenter(new THREE.Vector3());
+          const parent = root.parent || scene;
+          const pivot = new THREE.Group();
+          pivot.name = 'pivot:' + (root.name || 'component');
+          parent.add(pivot);
+          pivot.position.copy(centerWorld);
+          // Preserve world transform while reparenting
+          if (typeof pivot.attach === 'function') {
+            pivot.attach(root);
+          } else {
+            // Fallback: approximate by converting position to pivot local
+            const worldPos = new THREE.Vector3();
+            root.getWorldPosition(worldPos);
+            parent.remove(root);
+            pivot.add(root);
+            root.position.copy(pivot.worldToLocal(worldPos));
+          }
+          // Store pivot reference for selection
+          root.userData.pivot = pivot;
+          return root;
+        } catch { return root; }
+      }
+
+      function toOhms(value, unit) {
+        const v = Number(value) || 0;
+        if (unit === 'k') return v * 1e3;
+        if (unit === 'M') return v * 1e6;
+        return v;
+      }
+
+      function fromOhms(ohms) {
+        const o = Number(ohms) || 0;
+        if (o >= 1e6) return { value: +(o / 1e6).toFixed(3), unit: 'M' };
+        if (o >= 1e3) return { value: +(o / 1e3).toFixed(3), unit: 'k' };
+        return { value: +o.toFixed(3), unit: 'ohm' };
+      }
+
+      function formatOhms(ohms) {
+        const f = fromOhms(ohms);
+        const unitText = f.unit === 'M' ? 'MΩ' : (f.unit === 'k' ? 'kΩ' : 'Ω');
+        return `${f.value} ${unitText}`;
+      }
+
+      function ensureResistorDefaults(model) {
+        if (!model.userData.resistance) {
+          // default 1 kΩ
+          model.userData.resistance = { value: 1, unit: 'k', ohms: 1000 };
+        } else {
+          const r = model.userData.resistance;
+          if (r.ohms == null) r.ohms = toOhms(r.value ?? 1, r.unit ?? 'ohm');
+        }
+      }
+
+      function detectComponentType(model) {
+        try {
+          if (model.userData?.componentType) return model.userData.componentType;
+          const fp = (model.userData?.filePath || "").toLowerCase();
+          const nm = (model.name || "").toLowerCase();
+          if (fp.includes('battery') || nm.includes('battery')) return model.userData.componentType = 'battery';
+          if (fp.includes('resistor') || nm.includes('resistor')) return model.userData.componentType = 'resistor';
+          // Heuristic: 2 terminal pins likely a resistor
+          let terminalCount = 0;
+          model.traverse((child) => {
+            if (child.userData?.isPinMarker && (child.userData.pinType === 'terminal')) terminalCount++;
+          });
+          if (terminalCount === 2) return model.userData.componentType = 'resistor';
+          return model.userData.componentType || null;
+        } catch { return model.userData?.componentType || null; }
+      }
+
+      function updateResistorPanelFor(model) {
+        try {
+          if (!model) { hideResistorPanel(); return; }
+          const type = detectComponentType(model);
+          if (type !== 'resistor') {
+            console.log('[ResistorPanel] Not a resistor, type=', type);
+            hideResistorPanel();
+            return;
+          }
+          ensureResistorDefaults(model);
+          const r = model.userData.resistance;
+          // set UI fields
+          resistValueEl.value = r.value;
+          resistUnitEl.value = r.unit;
+          resistOhmsEl.textContent = `= ${formatOhms(r.ohms)}`;
+          resistorPanel.classList.add('show');
+          console.log('[ResistorPanel] Resistor panel opened. Resistance:', r.value, r.unit, `(${r.ohms} Ω)`);
+        } catch {
+          hideResistorPanel();
+        }
+      }
+
+      function hideResistorPanel() {
+        if (resistorPanel.classList.contains('show')) {
+          console.log('[ResistorPanel] Resistor panel hidden');
+        }
+        resistorPanel.classList.remove('show');
+        if (window.selectedModelRef) {
+          console.log('[ResistorPanel] Current selected type =', window.selectedModelRef.userData?.componentType);
+        }
+      }
+
+      // Expose functions globally for early selection calls
+      window.updateResistorPanelFor = updateResistorPanelFor;
+      window.hideResistorPanel = hideResistorPanel;
+      console.log('[PanelInit] Panel functions bound to window');
+      // Late init apply if selection happened before functions loaded
+      if (window.selectedModelRef && window.selectedModelRef.userData?.componentType === 'resistor') {
+        console.log('[PanelInit] Late init: applying panel to already selected resistor');
+        updateResistorPanelFor(window.selectedModelRef);
+      }
+
+      // Hook input changes
+      resistValueEl.addEventListener('input', () => {
+        const m = window.selectedModelRef;
+        if (!m || m.userData?.componentType !== 'resistor') return;
+        const unit = resistUnitEl.value;
+        const value = Number(resistValueEl.value) || 0;
+        const ohms = toOhms(value, unit);
+        m.userData.resistance = { value, unit, ohms };
+        resistOhmsEl.textContent = `= ${formatOhms(ohms)}`;
+      });
+      resistUnitEl.addEventListener('change', () => {
+        const m = window.selectedModelRef;
+        if (!m || m.userData?.componentType !== 'resistor') return;
+        const unit = resistUnitEl.value;
+        const value = Number(resistValueEl.value) || 0;
+        const ohms = toOhms(value, unit);
+        m.userData.resistance = { value, unit, ohms };
+        resistOhmsEl.textContent = `= ${formatOhms(ohms)}`;
+      });
+
+      let selectedComponent = null; // 'resistor' | 'battery' | null
+      const modelMap = {
+        // Prefer parent folder path (works when served), will fall back in loader
+        resistor: './lowpoly_resistor.glb',
+        battery: './battery.glb'
+      };
+
+      const raycaster = new THREE.Raycaster();
+      const pointer = new THREE.Vector2();
+      const loader = new GLTFLoader();
+
+      function setPointerFromEvent(event) {
+        const rect = mRenderer.domElement.getBoundingClientRect();
+        pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      }
+
+      function getPlaneIntersection(event) {
+        setPointerFromEvent(event);
+        raycaster.setFromCamera(pointer, mCamera);
+        const hit = raycaster.intersectObject(mDropPlane, true)[0];
+        return hit ? hit.point : null;
+      }
+
+      function highlightGrid(on) {
+        if (!mGrid) return;
+        const mats = Array.isArray(mGrid.material) ? mGrid.material : [mGrid.material];
+        const colorA = on ? 0x334056 : 0x232a3a;
+        const colorB = on ? 0x3a4a60 : 0x2b3446;
+        mats.forEach((mat, i) => { try { mat.color.set(i === 0 ? colorA : colorB); } catch(e){} });
+      }
+
+      async function loadModelFromFile(file, dropPoint) {
+        return new Promise((resolve, reject) => {
+          const url = URL.createObjectURL(file);
+          loader.load(url, (gltf) => {
+            URL.revokeObjectURL(url);
+            const root = gltf.scene || gltf.scenes?.[0];
+            if (!root) { reject(new Error('No scene in GLB')); return; }
+            root.position.copy(dropPoint || new THREE.Vector3(0, 0, 0.01));
+            
+            // Apply scaling recursively to handle GLTF structure
+            const scaleValue = 0.4;
+            root.scale.setScalar(scaleValue);
+            root.traverse((child) => {
+              if (child.isMesh) {
+                child.scale.setScalar(scaleValue);
+              }
+            });
+            
+            // Store file info and determine component type
+            root.userData.filePath = file.name;
+            root.userData.componentType = file.name.includes('battery') ? 'battery' : 'resistor';
+            
+            scene.add(root);
+            // Ensure transform gizmo appears at model center
+            wrapWithCenteredPivot(root);
+            if (window.pickables) {
+              window.pickables.push(root);
+              
+              // Add pins if wireManager is available  
+              if (window.wireManager) {
+                const compId = `component_${Date.now()}`;
+                root.userData.componentId = compId;
+                window.wireManager.createPinMarkers(root, compId, root.userData.componentType);
+              }
+            }
+            if (mTControls) window.setSelectedModel(root);
+            statusEl.textContent = `Placed: ${file.name} at (${root.position.x.toFixed(2)}, ${root.position.y.toFixed(2)})`;
+            resolve(root);
+          }, undefined, (err) => {
+            URL.revokeObjectURL(url);
+            reject(err);
+          });
+        });
+      }
+
+      // Drag & drop handlers on the canvas
+      mRenderer.domElement.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        highlightGrid(true);
+        // Store current intersection for placement (mirrors Project's pattern)
+        const pt = getPlaneIntersection(e);
+        if (pt) window.mousePosition = pt.clone();
+        const hasComponentData = !!e.dataTransfer.types?.includes('component');
+        statusEl.textContent = hasComponentData || selectedComponent
+          ? 'Release to place on the grid'
+          : 'Drag “Resistor” from Components or drop a .glb';
+      });
+
+      mRenderer.domElement.addEventListener('dragleave', () => {
+        highlightGrid(false);
+        statusEl.textContent = 'Click Components → choose Resistor • Then drag and drop lowpoly_resistor.glb onto the grid';
+      });
+
+      mRenderer.domElement.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        highlightGrid(false);
+        const files = Array.from(e.dataTransfer.files || []);
+        const modelFile = files.find(f => /\.(glb|gltf)$/i.test(f.name));
+        // Priority 1: Component drag from UI
+        try {
+          const compDataRaw = e.dataTransfer.getData('component');
+          if (compDataRaw) {
+            const compData = JSON.parse(compDataRaw);
+            const type = compData.type || compData.component || compData.file?.replace(/\.glb$/i,'');
+            const url = compData.url || compData.file || modelMap[type];
+            if (!url) throw new Error('Unknown component');
+            const pt = getPlaneIntersection(e) || window.mousePosition || new THREE.Vector3(0,0,0.01);
+            const candidates = Array.from(new Set([
+              url,
+              './lowpoly_resistor.glb',
+              './battery.glb',
+              '/lowpoly_resistor.glb',
+              '/battery.glb',
+              'lowpoly_resistor.glb',
+              'battery.glb'
+            ]));
+            await loadModelFromURLCandidates(candidates, pt, type);
+            return;
+          }
+        } catch {}
+
+        // Priority 2: Raw file drop
+        if (modelFile) {
+          const pt = getPlaneIntersection(e) || window.mousePosition || new THREE.Vector3(0, 0, 0.01);
+          try {
+            await loadModelFromFile(modelFile, pt);
+          } catch (err) {
+            console.error(err);
+            statusEl.textContent = 'Failed to load model: ' + err.message;
+          }
+          return;
+        }
+
+        statusEl.textContent = 'Nothing to place. Drag “Resistor” from Components or drop a .glb';
+      });
+
+      // Toggle popup menu
+      btn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        // If in wiring mode, exit it so Components menu is usable
+        try {
+          if (window.wireManager && window.wireManager.wiringMode) {
+            const isWiring = window.wireManager.toggleWiringMode(); // toggles off
+            const wireBtnEl = document.getElementById('wireBtn');
+            if (wireBtnEl) {
+              wireBtnEl.classList.toggle('active', isWiring);
+              wireBtnEl.textContent = isWiring ? 'Exit Wiring' : 'Add Wire';
+            }
+          }
+        } catch {}
+        menu.classList.toggle('open');
+      });
+      document.addEventListener('click', () => menu.classList.remove('open'));
+      // Menu selections
+      menu.querySelectorAll('[data-component]').forEach(el => {
+        el.addEventListener('click', (ev) => {
+          const comp = ev.currentTarget.getAttribute('data-component');
+          selectedComponent = comp;
+          menu.classList.remove('open');
+          if (comp === 'resistor') {
+            statusEl.textContent = 'Resistor selected • Drag "Resistor" onto the grid or drop a .glb';
+          } else if (comp === 'battery') {
+            statusEl.textContent = 'Battery selected • Drag "Battery" onto the grid or drop a .glb';
+          }
+        });
+        // Also allow dragging the menu item like in the Project flow
+        el.addEventListener('dragstart', (ev) => {
+          const comp = ev.currentTarget.getAttribute('data-component');
+          const file = ev.currentTarget.getAttribute('data-file') || modelMap[comp];
+          const payload = { type: comp, file };
+          try { ev.dataTransfer.setData('component', JSON.stringify(payload)); } catch {}
+          ev.dataTransfer.effectAllowed = 'copy';
+          selectedComponent = comp;
+          statusEl.textContent = 'Drag over the grid and release to place';
+        });
+      });
+      filePicker.addEventListener('change', async () => {
+        const file = filePicker.files?.[0];
+        if (!file) return;
+        try {
+          await loadModelFromFile(file, new THREE.Vector3(0, 0, 0.01));
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = 'Failed to load model: ' + err.message;
+        } finally {
+          filePicker.value = '';
+        }
+      });
+      // Load model from URL (relative path). If loading fails (e.g., opening via file://),
+      // we show a hint and ask the user to copy the GLB next to index.html or use file drop.
+      async function loadModelFromURLCandidates(urls, dropPoint, componentType = null) {
+        for (const url of urls) {
+          try {
+            const model = await new Promise((resolve, reject) => {
+              loader.load(url, (gltf) => {
+                const root = gltf.scene || gltf.scenes?.[0];
+                if (!root) { reject(new Error('No scene in GLB')); return; }
+                root.position.copy(dropPoint || new THREE.Vector3(0, 0, 0.01));
+                
+                // Apply scaling recursively to handle GLTF structure
+                const scaleValue = 0.4;
+                root.scale.setScalar(scaleValue);
+                root.traverse((child) => {
+                  if (child.isMesh) {
+                    child.scale.setScalar(scaleValue);
+                  }
+                });
+                
+                // Store component type info
+                root.userData.filePath = url;
+                root.userData.componentType = componentType || (url.includes('battery') ? 'battery' : 'resistor');
+                
+                scene.add(root);
+                // Ensure transform gizmo appears at model center
+                wrapWithCenteredPivot(root);
+                if (window.pickables) {
+                  window.pickables.push(root);
+                  
+                  // Add pins if wireManager is available
+                  if (window.wireManager) {
+                    const compId = `component_${Date.now()}`;
+                    root.userData.componentId = compId;
+                    window.wireManager.createPinMarkers(root, compId, root.userData.componentType);
+                  }
+                }
+                resolve(root);
+              }, undefined, (err) => reject(err));
+            });
+            if (mTControls) window.setSelectedModel(model);
+            statusEl.textContent = `Placed: ${model.userData.componentType} at (${model.position.x.toFixed(2)}, ${model.position.y.toFixed(2)})`;
+            return model;
+          } catch (e) {
+            // try next
+          }
+        }
+        statusEl.textContent = 'Could not load by URL. If opened directly as a file, try dragging the GLB from Explorer onto the grid, or run a local server at the project root.';
+        throw new Error('All URL candidates failed');
+      }
+
+      // Helper: If the known resistor path exists via drag-and-drop, user can also pick it with the button.
+      // Note: Browsers cannot load from raw local paths for security; prefer drag-and-drop or file picker.
+    </script>
+
+    <!-- Wire Manager and Wiring System -->
+    <script type="module">
+      import * as THREE from 'three';
+      
+      // Wire Manager Class
+      class WireManager {
+        constructor(scene) {
+          this.scene = scene;
+          this.wires = new Map();
+          this.pinMarkers = new Map();
+          this.wiringMode = false;
+          this.selectedPins = { start: null, end: null };
+          this.connectionPoints = new Map();
+          this.componentPins = new Map(); // componentId -> pin data
+          
+          // Wire materials
+          this.wireMaterial = new THREE.MeshPhongMaterial({
+            color: 0x00aaff,
+            shininess: 100,
+            emissive: 0x002244
+          });
+          
+          // Pin colors by type
+          this.pinColors = {
+            positive: 0xff0000, // Red for positive
+            negative: 0x000000, // Black for negative/ground
+            terminal: 0xffff00, // Yellow for terminals
+            default: 0x888888   // Gray for default
+          };
+        }
+
+        // Create pin markers for a component
+        createPinMarkers(component, componentId, componentType) {
+          const pinConfigs = this.getComponentPinConfig(componentType);
+          if (!pinConfigs) return;
+
+          pinConfigs.forEach((pinConfig, index) => {
+            const pinId = `pin${index + 1}`;
+            const pinKey = `${componentId}-${pinId}`;
+            
+            // Create pin marker sphere
+            const markerGeometry = new THREE.SphereGeometry(0.05);
+            const markerMaterial = new THREE.MeshPhongMaterial({
+              color: this.pinColors[pinConfig.type] || this.pinColors.default,
+              shininess: 100,
+              emissive: 0x111111,
+              transparent: true,
+              opacity: 0.6
+            });
+            
+            const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+            
+            // Position pin relative to component
+            marker.position.copy(pinConfig.position);
+            component.add(marker);
+            
+            // Store metadata
+            marker.userData = {
+              isPinMarker: true,
+              componentId: componentId,
+              pinId: pinId,
+              pinType: pinConfig.type,
+              pinKey: pinKey
+            };
+            
+            // Store references
+            this.connectionPoints.set(pinKey, marker);
+            
+            // Initially hidden
+            marker.visible = false;
+          });
+
+          // Store component pin data
+          this.componentPins.set(componentId, { componentType, pinConfigs });
+        }
+
+        // Get pin configuration for different component types
+        getComponentPinConfig(componentType) {
+          const configs = {
+            resistor: [
+              { position: new THREE.Vector3(-1.20, 0, 0), type: 'terminal' },
+              { position: new THREE.Vector3(1.20, 0, 0), type: 'terminal' }
+            ],
+            battery: [
+              { position: new THREE.Vector3(-0.05, 1.4, 0), type: 'positive' },
+              { position: new THREE.Vector3(-0.05, 0.4, 0), type: 'negative' }
+            ]
+          };
+          
+          return configs[componentType] || null;
+        }
+
+        // Toggle wiring mode
+        toggleWiringMode() {
+          this.wiringMode = !this.wiringMode;
+          this.updatePinVisibility();
+          this.updateWiringStatus();
+          
+          // Detach transform gizmo in wiring mode to avoid arrows on pin selection
+          try {
+            if (window.transformControls) {
+              if (this.wiringMode) window.transformControls.detach();
+            }
+          } catch {}
+          
+          if (!this.wiringMode) {
+            this.clearSelectedPins();
+            this.cancelTempWire();
+          }
+          
+          return this.wiringMode;
+        }
+
+        // Update pin marker visibility and appearance
+        updatePinVisibility() {
+          this.connectionPoints.forEach(marker => {
+            marker.visible = this.wiringMode;
+            marker.material.opacity = this.wiringMode ? 0.8 : 0.6;
+            marker.scale.setScalar(this.wiringMode ? 1.2 : 1.0);
+          });
+        }
+
+        // Handle pin selection
+        selectPin(pinMarker) {
+          if (!this.wiringMode || !pinMarker.userData.isPinMarker) return false;
+
+          const pinKey = pinMarker.userData.pinKey;
+          
+          if (!this.selectedPins.start) {
+            // First pin selection
+            this.selectedPins.start = { marker: pinMarker, key: pinKey };
+            this.highlightPin(pinMarker, true);
+            this.updateWiringStatus('Click on another component pin to create a wire');
+            // Start multi-segment wire flow
+            this.startWireFromPin(pinMarker);
+          } else if (this.selectedPins.start.key !== pinKey) {
+            // Second pin selection - create wire
+            this.selectedPins.end = { marker: pinMarker, key: pinKey };
+            this.endWireAtPin(pinMarker);
+            this.clearSelectedPins();
+            this.updateWiringStatus('Wire created! Click on pins to create more wires');
+            this.cancelTempWire();
+          } else {
+            // Clicked same pin - deselect
+            this.clearSelectedPins();
+            this.updateWiringStatus('Click on component pins to connect them');
+            this.cancelTempWire();
+          }
+          
+          return true;
+        }
+
+        // Highlight pin
+        highlightPin(pinMarker, highlight) {
+          if (highlight) {
+            pinMarker.material.emissive.setHex(0x444444);
+            pinMarker.scale.setScalar(1.5);
+          } else {
+            pinMarker.material.emissive.setHex(0x111111);
+            pinMarker.scale.setScalar(this.wiringMode ? 1.2 : 1.0);
+          }
+        }
+
+        // Clear selected pins
+        clearSelectedPins() {
+          if (this.selectedPins.start) {
+            this.highlightPin(this.selectedPins.start.marker, false);
+          }
+          if (this.selectedPins.end) {
+            this.highlightPin(this.selectedPins.end.marker, false);
+          }
+          
+          this.selectedPins.start = null;
+          this.selectedPins.end = null;
+        }
+
+        // Helper: build a smooth curve between two points
+        _buildCurve(startPos, endPos) {
+          // Straight segment between two points; stays flexible by updating per frame
+          const p0 = startPos.clone();
+          const p1 = endPos.clone();
+          return new THREE.CatmullRomCurve3([p0, p1]);
+        }
+
+        // Create/update tube for a curve
+        _createTubeFromCurve(curve, radius = 0.007, tubularSegments = 32) {
+          const path = curve;
+          const geometry = new THREE.TubeGeometry(path, tubularSegments, radius, 8, false);
+          return geometry;
+        }
+
+        // Helpers for in-progress multi-segment wires
+        _makeMarkerRef(marker) { return { type: 'marker', marker }; }
+        _makeFixedRef(point) { return { type: 'fixed', point: point.clone() }; }
+        _getWorld(ref) {
+          if (!ref) return new THREE.Vector3();
+          if (ref.type === 'marker' && ref.marker) {
+            const v = new THREE.Vector3();
+            ref.marker.getWorldPosition(v);
+            return v;
+          }
+          return ref.point.clone();
+        }
+
+        _createSegment(startRef, endRef, radius = 0.007, tubularSegments = 32) {
+          const s = this._getWorld(startRef);
+          const e = this._getWorld(endRef);
+          const curve = this._buildCurve(s, e);
+          const geo = this._createTubeFromCurve(curve, radius, tubularSegments);
+          const mesh = new THREE.Mesh(geo, this.wireMaterial);
+          this.scene.add(mesh);
+          return { mesh, startRef, endRef, radius, tubularSegments };
+        }
+
+        // Start a new wire from a pin (first selection)
+        startWireFromPin(marker) {
+          this.inProgress = {
+            startRef: this._makeMarkerRef(marker),
+            lastRef: this._makeMarkerRef(marker),
+            segments: []
+          };
+          this.startTempWire(marker);
+        }
+
+        // Add an intermediate waypoint on the plane
+        addWaypoint(pointWorld) {
+          if (!this.inProgress) return;
+          const newRef = this._makeFixedRef(pointWorld);
+          const seg = this._createSegment(this.inProgress.lastRef, newRef);
+          this.inProgress.segments.push(seg);
+          this.inProgress.lastRef = newRef;
+          // Move temp preview start to new waypoint
+          this.tempStartMarker = null; // preview now from fixed point
+          // Replace temp line from lastRef to cursor
+          if (!this.tempLine) {
+            const mat = new THREE.LineBasicMaterial({ color: 0x00aaff, transparent: true, opacity: 0.6 });
+            const geom = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+            this.tempLine = new THREE.Line(geom, mat);
+            this.scene.add(this.tempLine);
+          }
+          const s = this._getWorld(this.inProgress.lastRef);
+          this._updateTempLine(s, s.clone());
+        }
+
+        // Finish the wire at a pin (second pin selection)
+        endWireAtPin(endMarker) {
+          if (!this.inProgress) return;
+          const endRef = this._makeMarkerRef(endMarker);
+          const last = this.inProgress.lastRef;
+          const seg = this._createSegment(last, endRef);
+          this.inProgress.segments.push(seg);
+          
+          const wireId = `wire_${Date.now()}`;
+          this.wires.set(wireId, { id: wireId, segments: this.inProgress.segments });
+          this.inProgress = null;
+          this.cancelTempWire();
+        }
+
+        // Start a temporary preview wire from a start pin
+        startTempWire(startMarker) {
+          this.cancelTempWire();
+          const material = new THREE.LineBasicMaterial({ color: 0x00aaff, transparent: true, opacity: 0.6 });
+          const points = [new THREE.Vector3(), new THREE.Vector3()];
+          const geometry = new THREE.BufferGeometry().setFromPoints(points);
+          this.tempLine = new THREE.Line(geometry, material);
+          this.scene.add(this.tempLine);
+          this.tempStartMarker = startMarker;
+          // Initialize first point
+          const s = new THREE.Vector3();
+          startMarker.getWorldPosition(s);
+          this._updateTempLine(s, s.clone());
+        }
+
+        // Internal: update temp line geometry points
+        _updateTempLine(p0, p1) {
+          if (!this.tempLine) return;
+          const pos = this.tempLine.geometry.getAttribute('position');
+          pos.setXYZ(0, p0.x, p0.y, p0.z);
+          pos.setXYZ(1, p1.x, p1.y, p1.z);
+          pos.needsUpdate = true;
+          this.tempLine.geometry.computeBoundingSphere();
+        }
+
+        // Update the temp wire toward a world point
+        updateTempWireTo(pointWorld) {
+          if (!this.tempLine) return;
+          let s;
+          if (this.tempStartMarker) {
+            s = new THREE.Vector3();
+            this.tempStartMarker.getWorldPosition(s);
+          } else if (this.inProgress && this.inProgress.lastRef) {
+            s = this._getWorld(this.inProgress.lastRef);
+          } else {
+            return;
+          }
+          this._updateTempLine(s, pointWorld);
+        }
+
+        // Cancel temp wire
+        cancelTempWire() {
+          if (this.tempLine) {
+            this.scene.remove(this.tempLine);
+            this.tempLine.geometry.dispose();
+            this.tempLine.material.dispose();
+            this.tempLine = null;
+            this.tempStartMarker = null;
+          }
+        }
+
+        // Called each frame to refresh wire geometry so it flexes with movement
+        update() {
+          if (!this.wires || this.wires.size === 0) return;
+          this.wires.forEach((wire) => {
+            if (!wire.segments) return;
+            wire.segments.forEach((seg) => {
+              const s = this._getWorld(seg.startRef);
+              const e = this._getWorld(seg.endRef);
+              const curve = this._buildCurve(s, e);
+              const newGeo = this._createTubeFromCurve(curve, seg.radius, seg.tubularSegments);
+              // Swap geometry
+              seg.mesh.geometry.dispose();
+              seg.mesh.geometry = newGeo;
+            });
+          });
+        }
+
+        // Update wiring status message
+        updateWiringStatus(message = null) {
+          const statusEl = document.getElementById('wiringStatus');
+          if (!statusEl) return;
+          
+          if (this.wiringMode) {
+            statusEl.classList.add('show');
+            statusEl.textContent = message || 'Click on component pins to connect them';
+          } else {
+            statusEl.classList.remove('show');
+          }
+        }
+
+        // Remove component pins when component is removed
+        removeComponentPins(componentId) {
+          const pinData = this.componentPins.get(componentId);
+          if (!pinData) return;
+          
+          // Remove all pins for this component
+          this.connectionPoints.forEach((marker, pinKey) => {
+            if (pinKey.startsWith(`${componentId}-`)) {
+              marker.parent.remove(marker);
+              this.connectionPoints.delete(pinKey);
+            }
+          });
+          
+          // Remove wires connected to this component
+          this.wires.forEach((wireObj, wireId) => {
+            let touches = false;
+            if (wireObj.segments && wireObj.segments.length) {
+              for (const seg of wireObj.segments) {
+                const refs = [seg.startRef, seg.endRef];
+                for (const ref of refs) {
+                  if (ref && ref.type === 'marker' && ref.marker && ref.marker.userData && ref.marker.userData.componentId === componentId) {
+                    touches = true;
+                    break;
+                  }
+                }
+                if (touches) break;
+              }
+            }
+            if (touches) {
+              for (const seg of wireObj.segments) {
+                this.scene.remove(seg.mesh);
+                seg.mesh.geometry?.dispose?.();
+              }
+              this.wires.delete(wireId);
+            }
+          });
+          
+          this.componentPins.delete(componentId);
+        }
+      }
+
+      // Initialize wire manager
+      const wireManager = new WireManager(window.scene);
+      window.wireManager = wireManager;
+
+      // Wire button functionality
+      const wireBtn = document.getElementById('wireBtn');
+      
+      wireBtn.addEventListener('click', () => {
+        const isWiring = wireManager.toggleWiringMode();
+        wireBtn.classList.toggle('active', isWiring);
+        wireBtn.textContent = isWiring ? 'Exit Wiring' : 'Add Wire';
+      });
+
+      // Enhanced click handler to include pin selection and plane waypoints
+      const originalPointerHandler = window.renderer.domElement.onpointerup;
+      window.renderer.domElement.addEventListener('pointerup', (ev) => {
+        if (ev.button !== 0) return; // left click only
+        console.log('[PointerUp] event at', ev.clientX, ev.clientY);
+        
+        const rect = window.renderer.domElement.getBoundingClientRect();
+        const mouse = new THREE.Vector2(
+          ((ev.clientX - rect.left) / rect.width) * 2 - 1,
+          -((ev.clientY - rect.top) / rect.height) * 2 + 1
+        );
+        
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, window.camera);
+        const isWiring = !!(window.wireManager && window.wireManager.wiringMode);
+        console.log('[PointerUp] wiringMode =', isWiring);
+        
+        // Check for pin clicks first if in wiring mode
+        if (isWiring) {
+          const pinHits = raycaster.intersectObjects(Array.from(wireManager.connectionPoints.values()))
+            .filter(h => h.object.visible);
+          if (pinHits.length > 0) {
+            wireManager.selectPin(pinHits[0].object);
+            console.log('[PointerUp] Pin selected');
+            return; // handled
+          }
+          // If clicked on plane while wiring and started, add a waypoint
+          const planeHit = raycaster.intersectObject(window.dropPlane, true)[0];
+          if (planeHit && (wireManager.inProgress || wireManager.tempStartMarker)) {
+            wireManager.addWaypoint(planeHit.point);
+            console.log('[PointerUp] Waypoint added at', planeHit.point.x, planeHit.point.y, planeHit.point.z);
+            return; // handled
+          }
+        }
+        
+        // Regular object selection (existing logic)
+        const hits = raycaster.intersectObjects(window.pickables || [], true);
+        console.log('[PointerUp] object hits count =', hits.length);
+        if (hits.length) {
+          const getPickableRoot = (obj) => {
+            let p = obj;
+            while (p && !(window.pickables || []).includes(p)) p = p.parent;
+            return p || null;
+          };
+          
+          const root = getPickableRoot(hits[0].object);
+          if (root) { 
+            console.log('[PointerUp] Pickable root found:', root.name || '[no-name]');
+            window.setSelectedModel(root); 
+            return; 
+          }
+          console.log('[PointerUp] No pickable root matched');
+        }
+        
+        // Clicked empty space -> deselect (only when not wiring)
+        if (!isWiring) {
+          window.clearSelectedModel();
+        } else {
+          console.log('[PointerUp] Empty space click ignored due to wiring mode');
+        }
+      });
+
+      // Pointer move handler to update preview wire toward cursor
+      window.renderer.domElement.addEventListener('pointermove', (ev) => {
+        if (!wireManager || !wireManager.wiringMode || (!wireManager.tempStartMarker && !wireManager.inProgress)) return;
+        const rect = window.renderer.domElement.getBoundingClientRect();
+        const mouse = new THREE.Vector2(
+          ((ev.clientX - rect.left) / rect.width) * 2 - 1,
+          -((ev.clientY - rect.top) / rect.height) * 2 + 1
+        );
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, window.camera);
+        const hit = raycaster.intersectObject(window.dropPlane, true)[0];
+        if (hit) {
+          wireManager.updateTempWireTo(hit.point);
+        }
+      });
+
+      // Pins are now added directly in the loading functions
+    </script>
+  </body>
+</html>
