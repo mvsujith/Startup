@@ -1,0 +1,48 @@
+.lab-app {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+.main-canvas {
+    position: absolute;
+    left: 250px;
+    right: 350px;
+    top: 0;
+    bottom: 0;
+    width: calc(100vw - 600px);
+    height: 100vh;
+}
+
+/* Mobile responsive */
+@media (max-width: 1024px) {
+    .component-palette {
+        width: 200px;
+    }
+
+    .control-panel {
+        width: 300px;
+    }
+
+    .main-canvas {
+        left: 200px;
+        right: 300px;
+        width: calc(100vw - 500px);
+    }
+}
+
+@media (max-width: 768px) {
+
+    .component-palette,
+    .control-panel {
+        display: none;
+        /* Hide panels on very small screens - could make collapsible */
+    }
+
+    .main-canvas {
+        left: 0;
+        right: 0;
+        width: 100vw;
+    }
+}
