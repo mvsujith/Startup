@@ -1,0 +1,97 @@
+.app-shell {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-base);
+  font-family: var(--font-body);
+}
+
+/* ── Side panels ─────────────────────────────────── */
+.left-panel,
+.right-panel {
+  width: 270px;
+  min-width: 270px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 10;
+}
+.right-panel {
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(34, 211, 238, 0.04);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.panel-header-icon { font-size: 16px; }
+
+/* ── Centre 3D canvas ────────────────────────────── */
+.canvas-shell {
+  flex: 1;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+.canvas-shell canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── Phase badge overlay ─────────────────────────── */
+.phase-overlay {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 20px;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+  white-space: nowrap;
+  transition: all 0.4s;
+}
+.phase-idle    { background: rgba(148,163,184,0.12); color: var(--text-secondary); border: 1px solid var(--border); }
+.phase-winding { background: rgba(167,139,250,0.18); color: var(--accent-purple);  border: 1px solid rgba(167,139,250,0.35); box-shadow: var(--glow-purple); }
+.phase-running { background: rgba(34,211,238,0.18);  color: var(--accent-cyan);    border: 1px solid rgba(34,211,238,0.35);  box-shadow: var(--glow-cyan); }
+.phase-done    { background: rgba(74,222,128,0.18);  color: var(--accent-green);   border: 1px solid rgba(74,222,128,0.35);  box-shadow: var(--glow-green); }
+
+/* ── Common card ─────────────────────────────────── */
+.exp-card {
+  margin: 10px;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+.exp-card-title {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}

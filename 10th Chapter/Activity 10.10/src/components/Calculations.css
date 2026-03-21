@@ -1,0 +1,80 @@
+.calculations-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.calc-card {
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.calc-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.calc-formula {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 6px;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.calc-formula.highlight {
+  border-left: 3px solid var(--accent-magenta);
+}
+
+.calc-formula.highlight-speed {
+  border-left: 3px solid var(--accent-cyan);
+}
+
+.calc-formula.highlight-energy {
+  border-left: 3px solid var(--accent-purple);
+}
+
+.calc-variable {
+  color: var(--accent-cyan);
+  font-weight: bold;
+}
+
+.calc-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.calc-result-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.calc-result-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.calc-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  font-style: italic;
+}
