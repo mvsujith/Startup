@@ -1,0 +1,49 @@
+.energy-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.meter-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7986cb;
+}
+
+.meter-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  transition: color 0.3s;
+}
+
+.meter-track {
+  width: 100%;
+  height: 16px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.15s ease-out, background 0.3s, box-shadow 0.3s;
+  min-width: 2px;
+}
+
+.meter-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #4a5080;
+}

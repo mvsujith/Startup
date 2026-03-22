@@ -1,0 +1,79 @@
+.mode-bar {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(10,18,50,0.95);
+  border: 1px solid rgba(99,130,255,0.35);
+  border-radius: 14px;
+  padding: 8px 16px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 24px rgba(0,0,40,0.5);
+}
+
+.mode-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.mode-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.mode-tab:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(99,130,255,0.3);
+}
+.mode-tab.active {
+  background: linear-gradient(135deg, rgba(63,81,181,0.5), rgba(124,77,255,0.4));
+  border-color: rgba(124,77,255,0.7);
+  box-shadow: 0 0 14px rgba(124,77,255,0.3);
+}
+
+.mode-tab-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #e8eaf6;
+  white-space: nowrap;
+}
+.mode-tab-desc {
+  font-size: 9.5px;
+  color: #5565a0;
+  white-space: nowrap;
+}
+.mode-tab.active .mode-tab-desc { color: #90caf9; }
+
+.mode-score {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(255,255,255,0.12);
+}
+
+.score-icon { font-size: 16px; }
+.score-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffd740;
+  min-width: 36px;
+}
+
+.badge-row { display: flex; gap: 3px; }
+.badge-pill {
+  font-size: 16px;
+  cursor: default;
+}
