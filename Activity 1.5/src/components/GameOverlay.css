@@ -1,0 +1,437 @@
+/* ── GameOverlay.css — Phase 3 Gamification UI ──────────────────────────── */
+
+/* ── Base overlay backdrop ─────────────────────────────────────────────────── */
+.go-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 8, 22, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: goFadeIn 0.35s ease both;
+}
+
+/* Hint bar (non-blocking — no backdrop) */
+.go-hint-bar {
+  position: fixed;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 180;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  background: rgba(10, 20, 48, 0.92);
+  border: 1px solid rgba(100, 160, 255, 0.30);
+  border-radius: 40px;
+  backdrop-filter: blur(8px);
+  animation: goSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  pointer-events: none;
+}
+.go-hint-bar .go-hint-icon { font-size: 1.1rem; }
+.go-hint-bar .go-hint-text {
+  color: #b8d8ff;
+  font-size: 0.88rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Score badge (top-right, always visible during hint-bar phases) */
+.go-score-badge {
+  position: fixed;
+  top: 62px;
+  right: 18px;
+  z-index: 190;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  background: rgba(10, 20, 48, 0.92);
+  border: 1.5px solid rgba(255, 195, 30, 0.45);
+  border-radius: 30px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fbbf24;
+  pointer-events: none;
+  animation: goFadeIn 0.4s ease both;
+}
+
+/* ── Panel card ────────────────────────────────────────────────────────────── */
+.go-panel {
+  background: linear-gradient(145deg, rgba(14, 24, 56, 0.98), rgba(8, 16, 40, 0.98));
+  border: 1.5px solid rgba(80, 130, 255, 0.28);
+  border-radius: 20px;
+  padding: 36px 40px;
+  max-width: 560px;
+  width: calc(100vw - 48px);
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04);
+  animation: goPanelIn 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(80,130,255,0.3) transparent;
+}
+
+/* ── Typography ────────────────────────────────────────────────────────────── */
+.go-icon      { font-size: 3.2rem; display: block; text-align: center; margin-bottom: 6px; }
+.go-title     { font-size: 1.72rem; font-weight: 800; color: #e8f0ff; text-align: center; margin: 0 0 6px; letter-spacing: -0.3px; }
+.go-subtitle  { font-size: 1.00rem; color: rgba(170,210,255,0.72); text-align: center; margin: 0 0 24px; line-height: 1.55; }
+.go-divider   { height: 1px; background: rgba(80,130,255,0.20); margin: 20px 0; }
+
+/* ── Intro checklist ────────────────────────────────────────────────────────── */
+.go-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 28px;
+  text-align: left;
+}
+.go-check-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+  border: 1px solid rgba(80,130,255,0.14);
+  color: #c8deff;
+  font-size: 0.90rem;
+  font-weight: 500;
+}
+.go-check-item .go-check-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+/* ── Prediction cards ──────────────────────────────────────────────────────── */
+.go-predict-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.go-pred-card {
+  cursor: pointer;
+  padding: 22px 16px;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  background: rgba(255,255,255,0.05);
+  text-align: center;
+  transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s, background 0.18s;
+  user-select: none;
+}
+.go-pred-card:hover { transform: translateY(-3px); background: rgba(255,255,255,0.09); }
+.go-pred-card.hot   { border-color: rgba(255,120,48,0.45); }
+.go-pred-card.cold  { border-color: rgba(58,180,242,0.45); }
+.go-pred-card.hot:hover   { box-shadow: 0 8px 28px rgba(255,120,48,0.30); border-color: #ff7a30; }
+.go-pred-card.cold:hover  { box-shadow: 0 8px 28px rgba(58,180,242,0.30); border-color: #3ab4f2; }
+.go-pred-card.selected.hot  { border-color: #ff7a30; background: rgba(255,120,48,0.15); box-shadow: 0 0 0 3px rgba(255,120,48,0.25); }
+.go-pred-card.selected.cold { border-color: #3ab4f2; background: rgba(58,180,242,0.15); box-shadow: 0 0 0 3px rgba(58,180,242,0.25); }
+.go-pred-emoji  { font-size: 2.4rem; display: block; margin-bottom: 8px; }
+.go-pred-label  { font-size: 1.08rem; font-weight: 700; color: #dff0ff; }
+.go-pred-temp   { font-size: 0.80rem; color: rgba(180,220,255,0.60); margin-top: 4px; }
+
+/* Prediction feedback */
+.go-pred-feedback {
+  margin-top: 18px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  animation: goFadeIn 0.35s ease both;
+}
+.go-pred-feedback.correct { background: rgba(74,222,128,0.15); border: 1.5px solid rgba(74,222,128,0.45); color: #86efaa; }
+.go-pred-feedback.wrong   { background: rgba(248,113,113,0.15); border: 1.5px solid rgba(248,113,113,0.45); color: #fca5a5; }
+.go-pred-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.go-pred-dot { font-size: 1.3rem; }
+.go-pred-explain { font-size: 0.84rem; color: rgba(200,230,255,0.70); margin-top: 4px; font-weight: 400; line-height: 1.5; }
+.go-pts-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  background: rgba(251,191,36,0.20);
+  border: 1px solid rgba(251,191,36,0.45);
+  color: #fbbf24;
+  font-size: 0.80rem;
+  font-weight: 700;
+  margin-left: 8px;
+  animation: goPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ── Quiz panel ────────────────────────────────────────────────────────────── */
+.go-quiz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.go-quiz-progress {
+  display: flex;
+  gap: 6px;
+}
+.go-quiz-dot {
+  width: 28px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.12);
+  transition: background 0.3s;
+}
+.go-quiz-dot.done    { background: #4ade80; }
+.go-quiz-dot.wrong   { background: #f87171; }
+.go-quiz-dot.current { background: #60a5fa; }
+
+.go-quiz-score {
+  font-size: 0.80rem;
+  font-weight: 700;
+  color: #fbbf24;
+  padding: 4px 12px;
+  background: rgba(251,191,36,0.14);
+  border: 1px solid rgba(251,191,36,0.35);
+  border-radius: 20px;
+}
+
+.go-question {
+  font-size: 1.10rem;
+  font-weight: 700;
+  color: #dff0ff;
+  margin-bottom: 20px;
+  line-height: 1.55;
+}
+.go-q-num {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(150,200,255,0.55);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.go-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.go-option {
+  padding: 13px 16px;
+  border-radius: 11px;
+  border: 1.5px solid rgba(80,130,255,0.22);
+  background: rgba(255,255,255,0.04);
+  color: #c8deff;
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s, background 0.18s, transform 0.12s;
+}
+.go-option:hover:not(.disabled) { border-color: rgba(96,165,250,0.55); background: rgba(96,165,250,0.10); transform: translateX(3px); }
+.go-option.selected-correct { border-color: #4ade80; background: rgba(74,222,128,0.14); color: #86efaa; animation: goPop 0.3s ease; }
+.go-option.selected-wrong   { border-color: #f87171; background: rgba(248,113,113,0.14); color: #fca5a5; }
+.go-option.reveal-correct   { border-color: #4ade80 !important; background: rgba(74,222,128,0.08) !important; }
+.go-option.disabled         { cursor: default; opacity: 0.75; }
+
+.go-feedback-box {
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  animation: goFadeIn 0.3s ease both;
+}
+.go-feedback-box.correct { background: rgba(74,222,128,0.13); border: 1.5px solid rgba(74,222,128,0.40); }
+.go-feedback-box.wrong   { background: rgba(248,113,113,0.13); border: 1.5px solid rgba(248,113,113,0.40); }
+.go-feedback-title { font-size: 1.0rem; font-weight: 700; margin-bottom: 6px; }
+.go-feedback-box.correct .go-feedback-title { color: #86efaa; }
+.go-feedback-box.wrong   .go-feedback-title { color: #fca5a5; }
+.go-feedback-text { font-size: 0.85rem; color: rgba(200,230,255,0.75); line-height: 1.55; }
+.go-feedback-fact { font-size: 0.82rem; color: rgba(180,210,255,0.55); margin-top: 6px; font-style: italic; }
+
+/* ── Results panel ─────────────────────────────────────────────────────────── */
+.go-stars {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0 20px;
+}
+.go-star {
+  font-size: 2.8rem;
+  opacity: 0;
+  transform: scale(0);
+  animation: goStarPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.go-star:nth-child(1) { animation-delay: 0.10s; }
+.go-star:nth-child(2) { animation-delay: 0.30s; }
+.go-star:nth-child(3) { animation-delay: 0.50s; }
+.go-star.empty { filter: grayscale(1); opacity: 0.3; animation: goFadeIn 0.3s ease forwards; }
+
+.go-score-display {
+  text-align: center;
+  margin-bottom: 22px;
+}
+.go-score-num  { font-size: 2.4rem; font-weight: 900; color: #fbbf24; }
+.go-score-max  { font-size: 1.1rem; color: rgba(200,230,255,0.45); }
+.go-score-label { font-size: 0.85rem; color: rgba(180,210,255,0.55); margin-top: 2px; }
+
+.go-results-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 22px;
+  font-size: 0.88rem;
+}
+.go-results-table th {
+  padding: 8px 12px;
+  color: rgba(180,210,255,0.55);
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid rgba(80,130,255,0.18);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.go-results-table td {
+  padding: 9px 12px;
+  color: #c8deff;
+  border-bottom: 1px solid rgba(80,130,255,0.10);
+}
+.go-results-table tr:last-child td { border-bottom: none; }
+.go-td-hot  { color: #ff8a4a !important; font-weight: 600; }
+.go-td-cold { color: #5bc9ff !important; font-weight: 600; }
+
+/* Badges */
+.go-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.go-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(251,191,36,0.12);
+  border: 1.5px solid rgba(251,191,36,0.32);
+  border-radius: 30px;
+  animation: goPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.go-badge-emoji  { font-size: 1.2rem; }
+.go-badge-info   { display: flex; flex-direction: column; }
+.go-badge-label  { font-size: 0.82rem; font-weight: 700; color: #fbbf24; }
+.go-badge-desc   { font-size: 0.72rem; color: rgba(200,180,100,0.60); }
+
+/* Quiz summary */
+.go-quiz-summary {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.go-q-result {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1.0rem;
+}
+.go-q-result.correct { background: rgba(74,222,128,0.20); }
+.go-q-result.wrong   { background: rgba(248,113,113,0.20); }
+
+/* ── Explanation screen ─────────────────────────────────────────────────────── */
+.go-explanation {}
+.go-exp-section {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(80,130,255,0.15);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.go-exp-title {
+  font-size: 0.83rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(150,200,255,0.65);
+  margin-bottom: 10px;
+}
+.go-exp-body {
+  font-size: 0.90rem;
+  color: #c8deff;
+  line-height: 1.65;
+}
+.go-exp-body strong { color: #a5c8ff; }
+.go-exp-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(80,130,255,0.10);
+}
+.go-exp-row:last-child { border-bottom: none; }
+.go-exp-row-icon { font-size: 1.15rem; flex-shrink: 0; margin-top: 2px; }
+.go-exp-row-text { font-size: 0.88rem; color: #c0d8ff; line-height: 1.5; }
+.go-highlight {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 5px;
+  font-weight: 700;
+}
+.go-highlight.hot  { background: rgba(255,120,48,0.20); color: #ff9a60; }
+.go-highlight.cold { background: rgba(58,180,242,0.20); color: #5bc9ff; }
+.go-highlight.sci  { background: rgba(96,165,250,0.20); color: #93b8ff; }
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.go-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.00rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, filter 0.15s, opacity 0.15s;
+  margin-top: 10px;
+  font-family: inherit;
+}
+.go-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.12); }
+.go-btn:active { transform: translateY(0); }
+.go-btn:disabled { opacity: 0.4; cursor: default; }
+.go-btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
+.go-btn-success { background: linear-gradient(135deg, #22c55e, #15803d); color: #fff; }
+.go-btn-hot     { background: linear-gradient(135deg, #ff7a30, #c2410c); color: #fff; }
+.go-btn-cold    { background: linear-gradient(135deg, #3ab4f2, #0369a1); color: #fff; }
+.go-btn-ghost   { background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.16); color: #a0c0ff; }
+.go-btn-reset   { background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.14); color: #94a3b8; font-size: 0.88rem; }
+.go-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+
+/* ── Keyframes ─────────────────────────────────────────────────────────────── */
+@keyframes goFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes goPanelIn {
+  from { opacity: 0; transform: scale(0.90) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes goSlideUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes goPop {
+  0%   { opacity: 0; transform: scale(0.5); }
+  70%  { transform: scale(1.14); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes goStarPop {
+  0%   { opacity: 0; transform: scale(0) rotate(-30deg); }
+  70%  { transform: scale(1.25) rotate(5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes goPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}

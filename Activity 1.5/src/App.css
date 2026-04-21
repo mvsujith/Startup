@@ -1,0 +1,351 @@
+/* ── App.css — Diffusion in Liquids Experiment ── Phase 1 ──────────────────────
+ * Full dark-lab UI shell with:
+ *   • Header HUD with gradient logo + phase badge
+ *   • Legend side panel (hot / cold / crystal)
+ *   • Observation questions card (bottom-left)
+ *   • Footer hint bar
+ *   • Canvas fill
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ── Reset & tokens ──────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #080d18;
+  --surface:    rgba(12, 20, 44, 0.82);
+  --border:     rgba(80, 140, 255, 0.22);
+  --text:       #d4e4ff;
+  --text-dim:   rgba(180, 210, 255, 0.55);
+  --accent-hot: #ff6a1a;
+  --accent-cold:#3ab4f2;
+  --accent-cry: #2266ff;
+  --font:       'Inter', 'Segoe UI', system-ui, sans-serif;
+  --radius:     14px;
+  --blur:       16px;
+}
+
+/* ── Shell ────────────────────────────────────────────────────────────────────── */
+
+.app-shell {
+  position: relative;
+  width:    100vw;
+  height:   100vh;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: var(--font);
+  color: var(--text);
+}
+
+/* ── Canvas ───────────────────────────────────────────────────────────────────── */
+
+.canvas-shell {
+  position:   absolute;
+  inset:      0;
+  z-index:    0;
+}
+
+.canvas-shell canvas {
+  display: block;
+  width:   100% !important;
+  height:  100% !important;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────────── */
+
+.hud-header {
+  position:        absolute;
+  top:             0;
+  left:            0;
+  right:           0;
+  z-index:         10;
+  display:         flex;
+  align-items:     center;
+  gap:             16px;
+  padding:         12px 24px;
+  background:      linear-gradient(180deg, rgba(8,12,28,0.95) 0%, rgba(8,12,28,0.0) 100%);
+  border-bottom:   1px solid var(--border);
+  backdrop-filter: blur(4px);
+}
+
+.hud-logo {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+}
+
+.hud-logo-icon {
+  font-size: 1.6rem;
+  filter: drop-shadow(0 0 8px rgba(80,140,255,0.6));
+}
+
+.hud-logo-text {
+  font-size:   0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.hud-title {
+  flex:         1;
+  text-align:   center;
+  font-size:    1.25rem;
+  font-weight:  800;
+  letter-spacing: 0.02em;
+  background:   linear-gradient(90deg, var(--accent-hot) 0%, #ffffff 40%, var(--accent-cold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow:  none;
+  filter: drop-shadow(0 2px 12px rgba(80,140,255,0.3));
+}
+
+.hud-badge {
+  display:      flex;
+  align-items:  center;
+  gap:          6px;
+  padding:      5px 14px;
+  border-radius: 30px;
+  font-size:    0.72rem;
+  font-weight:  700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  background: rgba(20, 40, 80, 0.70);
+  color: var(--text-dim);
+}
+
+.hud-badge.phase1 {
+  border-color: rgba(80,160,255,0.4);
+  color: #80c8ff;
+}
+
+.hud-badge.phase2 {
+  border-color: rgba(60,200,80,0.4);
+  color: #80eea0;
+}
+
+.badge-dot {
+  width:    7px;
+  height:   7px;
+  border-radius: 50%;
+  background: #3ab4f2;
+  box-shadow: 0 0 8px #3ab4f2;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.75); }
+}
+
+/* ── Legend panel ─────────────────────────────────────────────────────────────── */
+
+.legend-panel {
+  position:      absolute;
+  top:           80px;
+  left:          18px;
+  z-index:       10;
+  width:         210px;
+  padding:       18px 16px;
+  border-radius: var(--radius);
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  backdrop-filter: blur(var(--blur));
+  display:       flex;
+  flex-direction: column;
+  gap:           10px;
+}
+
+.legend-title {
+  font-size:   0.70rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.legend-item {
+  display:     flex;
+  align-items: center;
+  gap:         12px;
+}
+
+.legend-swatch {
+  width:   14px;
+  height:  38px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.hot-swatch    { background: linear-gradient(180deg, #ff9a3c 0%, #ff4500 100%); box-shadow: 0 0 10px #ff6a1a88; }
+.cold-swatch   { background: linear-gradient(180deg, #3ab4f2 0%, #0077cc 100%); box-shadow: 0 0 10px #3ab4f288; }
+.crystal-swatch{ background: linear-gradient(180deg, #4488ff 0%, #0033cc 100%); box-shadow: 0 0 10px #2266ff88; }
+.diff-swatch   { background: linear-gradient(180deg, #1255dd 0%, #0033aa 100%); box-shadow: 0 0 10px #1255dd88; opacity: 0.85; }
+
+.legend-info {
+  display:       flex;
+  flex-direction: column;
+  gap:           2px;
+}
+
+.legend-name {
+  font-size:   0.84rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.legend-sub {
+  font-size:   0.70rem;
+  color: var(--text-dim);
+}
+
+.legend-divider {
+  height:     1px;
+  background: var(--border);
+  margin:     4px 0;
+}
+
+/* Dynamic stat row */
+.legend-stat-row {
+  display:       flex;
+  align-items:   center;
+  justify-content: space-between;
+  gap:           6px;
+}
+.legend-stat-label {
+  font-size:  0.68rem;
+  color:      var(--text-dim);
+}
+.legend-stat-vals {
+  font-size:  0.72rem;
+  font-weight: 600;
+  color:      var(--text);
+}
+
+.legend-instructions {
+  display:       flex;
+  flex-direction: column;
+  gap:           5px;
+}
+
+.inst-line {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+/* ── Observation questions card ───────────────────────────────────────────────── */
+
+.obs-card {
+  position:       absolute;
+  bottom:         60px;
+  left:           18px;
+  z-index:        10;
+  width:          260px;
+  padding:        16px 18px;
+  border-radius:  var(--radius);
+  background:     var(--surface);
+  border:         1px solid var(--border);
+  backdrop-filter: blur(var(--blur));
+}
+
+.obs-title {
+  font-size:   0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #80c8ff;
+  margin-bottom: 10px;
+}
+
+.obs-list {
+  list-style: none;
+  display:    flex;
+  flex-direction: column;
+  gap:        7px;
+}
+
+.obs-list li {
+  font-size:   0.78rem;
+  color:       var(--text);
+  padding-left: 14px;
+  position:    relative;
+  line-height: 1.4;
+}
+
+.obs-list li::before {
+  content:   '›';
+  position:  absolute;
+  left:      0;
+  color:     var(--accent-cold);
+  font-weight: 700;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────────── */
+
+.hud-footer {
+  position:     absolute;
+  bottom:       0;
+  left:         0;
+  right:        0;
+  z-index:      10;
+  display:      flex;
+  justify-content: center;
+  gap:          28px;
+  padding:      10px 0;
+  background:   linear-gradient(0deg, rgba(8,12,28,0.90) 0%, rgba(8,12,28,0.0) 100%);
+  backdrop-filter: blur(4px);
+}
+
+.hint {
+  font-size:   0.72rem;
+  color:       var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+/* ── Loading / Error overlay ──────────────────────────────────────────────────── */
+
+.loading-overlay {
+  position:        absolute;
+  inset:           0;
+  z-index:         200;
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  gap:             18px;
+  background:      rgba(8, 12, 28, 0.92);
+  backdrop-filter: blur(12px);
+}
+
+.loading-spinner {
+  width:  52px;
+  height: 52px;
+  border: 3px solid rgba(80, 140, 255, 0.20);
+  border-top-color: #3ab4f2;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-icon { font-size: 2.8rem; }
+
+.loading-text {
+  font-size:   1.0rem;
+  font-weight: 600;
+  color:       #80c8ff;
+  letter-spacing: 0.04em;
+}
+
+.loading-sub {
+  font-size: 0.76rem;
+  color:     rgba(255, 120, 120, 0.80);
+  max-width: 360px;
+  text-align: center;
+}
+
+.loading-overlay.error .loading-text { color: #ff8888; }

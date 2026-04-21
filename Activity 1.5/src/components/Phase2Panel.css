@@ -1,0 +1,541 @@
+/* ── Phase2Panel.css — Diffusion Experiment Controls ─────────────────────────
+ * Glassmorphism dark-lab styled control panel for Phase 2.
+ * Variables are consistent with App.css tokens.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Variables ───────────────────────────────────────────────────────────────── */
+:root {
+  --p2-hot:       #ff7a30;
+  --p2-hot-dim:   rgba(255, 122, 48, 0.22);
+  --p2-cold:      #3ab4f2;
+  --p2-cold-dim:  rgba(58, 180, 242, 0.22);
+  --p2-surface:   rgba(10, 18, 42, 0.88);
+  --p2-border:    rgba(80, 140, 255, 0.20);
+  --p2-text:      #d4e4ff;
+  --p2-muted:     rgba(180, 210, 255, 0.50);
+  --p2-radius:    14px;
+  --p2-blur:      18px;
+}
+
+/* ── Main Panel ──────────────────────────────────────────────────────────────── */
+
+.p2-panel {
+  position:        absolute;
+  top:             72px;
+  right:           16px;
+  z-index:         20;
+  width:           268px;
+  padding:         18px 16px 16px;
+  border-radius:   var(--p2-radius);
+  background:      var(--p2-surface);
+  border:          1px solid var(--p2-border);
+  backdrop-filter: blur(var(--p2-blur));
+  display:         flex;
+  flex-direction:  column;
+  gap:             12px;
+  box-shadow:      0 8px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(80,140,255,0.08);
+}
+
+/* ── Panel header ─────────────────────────────────────────────────────────────── */
+
+.p2-header {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+}
+
+.p2-icon { font-size: 1.2rem; }
+
+.p2-title {
+  flex:         1;
+  font-size:    0.78rem;
+  font-weight:  700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color:        #80b8ff;
+}
+
+.p2-status {
+  font-size:    0.68rem;
+  font-weight:  700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding:      3px 10px;
+  border-radius: 20px;
+  background:   rgba(80,140,255,0.12);
+  color:        #80b8ff;
+  border:       1px solid rgba(80,140,255,0.25);
+  transition:   background 0.3s, color 0.3s;
+}
+.p2-status.observing {
+  background: rgba(60, 200, 80, 0.15);
+  color: #66dd88;
+  border-color: rgba(60,200,80,0.30);
+}
+.p2-status.complete {
+  background: rgba(80,200,140,0.15);
+  color: #50e8a0;
+  border-color: rgba(80,200,140,0.30);
+}
+.p2-status.dropping,
+.p2-status.settling {
+  background: rgba(255,160,60,0.15);
+  color: #ffb060;
+  border-color: rgba(255,160,60,0.30);
+  animation: blink 0.8s ease-in-out infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+/* ── Buttons ──────────────────────────────────────────────────────────────────── */
+
+.p2-buttons {
+  display:       flex;
+  flex-direction: column;
+  gap:           8px;
+}
+
+.p2-btn {
+  display:         flex;
+  align-items:     center;
+  gap:             10px;
+  padding:         11px 16px;
+  border-radius:   10px;
+  border:          1px solid transparent;
+  cursor:          pointer;
+  font-family:     inherit;
+  font-size:       0.84rem;
+  font-weight:     600;
+  letter-spacing:  0.03em;
+  transition:      background 0.2s, border-color 0.2s, transform 0.1s, box-shadow 0.2s;
+  user-select:     none;
+}
+.p2-btn:active:not(.disabled) { transform: scale(0.97); }
+.p2-btn-icon { font-size: 1.1rem; }
+
+/* Drop Crystal */
+.p2-btn.btn-drop {
+  background:   linear-gradient(135deg, #1a3acc 0%, #0d209a 100%);
+  border-color: rgba(80,140,255,0.40);
+  color:        #c8d8ff;
+  box-shadow:   0 4px 18px rgba(26,60,204,0.35);
+}
+.p2-btn.btn-drop:hover:not(.disabled) {
+  background:  linear-gradient(135deg, #2244ee 0%, #1530bb 100%);
+  box-shadow:  0 6px 24px rgba(26,60,204,0.55);
+  border-color: rgba(100,160,255,0.60);
+}
+
+/* Start / Pause */
+.p2-btn.btn-toggle {
+  background:  linear-gradient(135deg, rgba(60,200,80,0.18) 0%, rgba(30,160,50,0.12) 100%);
+  border-color: rgba(60,200,80,0.35);
+  color:       #66ee88;
+}
+.p2-btn.btn-toggle:hover:not(.disabled) {
+  background:  linear-gradient(135deg, rgba(60,200,80,0.28) 0%, rgba(30,160,50,0.20) 100%);
+  border-color: rgba(80,220,100,0.55);
+  box-shadow:  0 4px 18px rgba(60,200,80,0.25);
+}
+.p2-btn.btn-toggle.running {
+  background:  linear-gradient(135deg, rgba(255,160,40,0.18) 0%, rgba(255,120,10,0.12) 100%);
+  border-color: rgba(255,160,40,0.35);
+  color:       #ffb060;
+}
+.p2-btn.btn-toggle.running:hover:not(.disabled) {
+  background:  linear-gradient(135deg, rgba(255,160,40,0.28) 0%, rgba(255,120,10,0.20) 100%);
+  border-color: rgba(255,180,60,0.55);
+}
+
+/* Reset */
+.p2-btn.btn-reset {
+  background:  rgba(255,80,80,0.08);
+  border-color: rgba(255,80,80,0.22);
+  color:       rgba(255,140,140,0.80);
+  font-size:   0.78rem;
+  padding:     9px 16px;
+}
+.p2-btn.btn-reset:hover:not(.disabled) {
+  background:  rgba(255,80,80,0.16);
+  border-color: rgba(255,80,80,0.40);
+  color:       #ff8888;
+}
+
+/* Disabled state */
+.p2-btn.disabled {
+  opacity: 0.35;
+  cursor:  not-allowed;
+}
+
+/* ── Secondary buttons ────────────────────────────────────────────────────────── */
+
+.p2-buttons-secondary {
+  display: flex;
+  gap:     8px;
+}
+
+.p2-btn-sm {
+  flex:         1;
+  padding:      8px 10px;
+  border-radius: 8px;
+  border:       1px solid var(--p2-border);
+  background:   rgba(80,140,255,0.06);
+  color:        var(--p2-muted);
+  font-family:  inherit;
+  font-size:    0.72rem;
+  font-weight:  600;
+  cursor:       pointer;
+  transition:   background 0.2s, color 0.2s, border-color 0.2s;
+  text-align:   center;
+}
+.p2-btn-sm:hover {
+  background:   rgba(80,140,255,0.14);
+  color:        var(--p2-text);
+  border-color: rgba(80,140,255,0.40);
+}
+.p2-btn-sm.active {
+  background:   rgba(80,140,255,0.20);
+  color:        #a0ccff;
+  border-color: rgba(80,140,255,0.50);
+}
+
+/* ── Time display ─────────────────────────────────────────────────────────────── */
+
+.p2-time-row {
+  display:       flex;
+  align-items:   center;
+  justify-content: space-between;
+  padding:       6px 10px;
+  border-radius: 8px;
+  background:    rgba(80,140,255,0.06);
+  border:        1px solid var(--p2-border);
+}
+.p2-time-label {
+  font-size:  0.70rem;
+  color:      var(--p2-muted);
+  letter-spacing: 0.06em;
+}
+.p2-time-value {
+  font-size:   1.10rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color:       var(--p2-text);
+  letter-spacing: 0.04em;
+}
+
+/* ── Divider ──────────────────────────────────────────────────────────────────── */
+
+.p2-divider {
+  height:     1px;
+  background: var(--p2-border);
+  margin:     0 -4px;
+}
+
+/* ── Progress blocks ──────────────────────────────────────────────────────────── */
+
+.p2-progress-block {
+  display:       flex;
+  flex-direction: column;
+  gap:           5px;
+}
+
+.p2-prog-header {
+  display:       flex;
+  align-items:   center;
+  justify-content: space-between;
+}
+.p2-prog-label {
+  font-size:   0.76rem;
+  font-weight: 600;
+}
+.p2-prog-label.hot  { color: var(--p2-hot); }
+.p2-prog-label.cold { color: var(--p2-cold); }
+
+.p2-prog-pct {
+  font-size:   0.80rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.p2-prog-pct.hot  { color: var(--p2-hot); }
+.p2-prog-pct.cold { color: var(--p2-cold); }
+
+.p2-prog-track {
+  position:     relative;
+  height:       10px;
+  border-radius: 6px;
+  background:   rgba(80,140,255,0.10);
+  overflow:     hidden;
+}
+
+.p2-prog-fill {
+  position:     absolute;
+  left: 0; top: 0; bottom: 0;
+  border-radius: 6px;
+  transition:   width 0.4s ease;
+}
+.p2-prog-fill.hot {
+  background: linear-gradient(90deg, #cc4400, #ff9030);
+  box-shadow: 0 0 8px rgba(255,120,48,0.50);
+}
+.p2-prog-fill.cold {
+  background: linear-gradient(90deg, #0066cc, #3ab4f2);
+  box-shadow: 0 0 8px rgba(58,180,242,0.50);
+}
+
+.p2-prog-done {
+  position:  absolute;
+  right:     6px;
+  top:       50%;
+  transform: translateY(-50%);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #88ffaa;
+  z-index: 1;
+}
+
+.p2-prog-sub {
+  font-size: 0.68rem;
+  color:     var(--p2-muted);
+  min-height: 14px;
+}
+
+/* ── Complete banner ──────────────────────────────────────────────────────────── */
+
+.p2-complete {
+  padding:     14px 14px;
+  border-radius: 10px;
+  background:  linear-gradient(135deg, rgba(60,200,120,0.14) 0%, rgba(30,120,60,0.10) 100%);
+  border:      1px solid rgba(80,220,130,0.28);
+  text-align:  center;
+  animation:   fadeSlideIn 0.5s ease;
+}
+.p2-complete-icon { font-size: 1.6rem; margin-bottom: 4px; }
+.p2-complete-text {
+  font-size:   0.88rem;
+  font-weight: 600;
+  color:       #80f0b0;
+  margin-bottom: 4px;
+}
+.p2-complete-sub  { font-size: 0.70rem; color: var(--p2-muted); }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Compare overlay ──────────────────────────────────────────────────────────── */
+
+.p2-compare {
+  position:        absolute;
+  top:             72px;
+  right:           296px;
+  z-index:         25;
+  width:           240px;
+  padding:         18px 16px;
+  border-radius:   var(--p2-radius);
+  background:      var(--p2-surface);
+  border:          1px solid var(--p2-border);
+  backdrop-filter: blur(var(--p2-blur));
+  display:         flex;
+  flex-direction:  column;
+  gap:             14px;
+  box-shadow:      0 8px 40px rgba(0,0,0,0.55);
+  animation:       fadeSlideIn 0.3s ease;
+}
+
+.p2-compare-title {
+  font-size:   0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color:       #80b8ff;
+}
+
+.p2-compare-row {
+  display:       flex;
+  align-items:   flex-end;
+  gap:           12px;
+  height:        130px;
+}
+
+.p2-compare-col {
+  flex:          1;
+  display:       flex;
+  flex-direction: column;
+  align-items:   center;
+  gap:           6px;
+  height:        100%;
+}
+.p2-compare-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.p2-compare-col.hot  .p2-compare-name { color: var(--p2-hot); }
+.p2-compare-col.cold .p2-compare-name { color: var(--p2-cold); }
+
+.p2-compare-bar-wrap {
+  flex:         1;
+  width:        40px;
+  background:   rgba(80,140,255,0.08);
+  border-radius: 8px;
+  overflow:     hidden;
+  display:      flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border:       1px solid var(--p2-border);
+}
+.p2-compare-bar {
+  width:        100%;
+  border-radius: 6px 6px 0 0;
+  transition:   height 0.4s ease;
+}
+.p2-compare-bar.hot  { background: linear-gradient(0deg, #cc4400, #ff9030); }
+.p2-compare-bar.cold { background: linear-gradient(0deg, #0066cc, #3ab4f2); }
+
+.p2-compare-pct {
+  font-size:   0.76rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.p2-compare-col.hot  .p2-compare-pct { color: var(--p2-hot); }
+.p2-compare-col.cold .p2-compare-pct { color: var(--p2-cold); }
+
+.p2-compare-vs {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+.p2-ratio {
+  font-size:   1.6rem;
+  font-weight: 800;
+  color:       #c8ecff;
+}
+.p2-ratio-label {
+  font-size: 0.64rem;
+  color:     var(--p2-muted);
+}
+
+.p2-compare-fact {
+  font-size: 0.72rem;
+  color:     var(--p2-muted);
+  line-height: 1.5;
+  padding-top: 4px;
+  border-top:  1px solid var(--p2-border);
+}
+
+.p2-compare-close {
+  align-self:  flex-end;
+  padding:     5px 14px;
+  border-radius: 6px;
+  border:      1px solid var(--p2-border);
+  background:  rgba(80,140,255,0.08);
+  color:       var(--p2-muted);
+  font-family: inherit;
+  font-size:   0.70rem;
+  cursor:      pointer;
+}
+.p2-compare-close:hover { color: var(--p2-text); background: rgba(80,140,255,0.15); }
+
+/* ── Hint modal overlay ───────────────────────────────────────────────────────── */
+
+.p2-hint-overlay {
+  position:   fixed;
+  inset:      0;
+  z-index:    100;
+  background: rgba(4, 8, 20, 0.80);
+  display:    flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  animation: fadeBg 0.2s ease;
+}
+@keyframes fadeBg { from { opacity: 0 } to { opacity: 1 } }
+
+.p2-hint-modal {
+  width:         min(520px, 90vw);
+  max-height:    85vh;
+  overflow-y:    auto;
+  padding:       28px 26px;
+  border-radius: 18px;
+  background:    rgba(10, 20, 50, 0.97);
+  border:        1px solid rgba(80,140,255,0.30);
+  box-shadow:    0 24px 80px rgba(0,0,0,0.80), 0 0 0 1px rgba(80,140,255,0.10);
+  display:       flex;
+  flex-direction: column;
+  gap:           18px;
+  animation:     fadeSlideIn 0.25s ease;
+}
+
+.p2-hint-title {
+  font-size:   1.05rem;
+  font-weight: 800;
+  color:       #a0d4ff;
+  letter-spacing: 0.02em;
+}
+
+.p2-hint-block {
+  padding:     14px 16px;
+  border-radius: 10px;
+  background:  rgba(80,140,255,0.06);
+  border-left: 3px solid rgba(80,140,255,0.40);
+  display:     flex;
+  flex-direction: column;
+  gap:         6px;
+}
+.p2-hint-q {
+  font-size:   0.84rem;
+  font-weight: 700;
+  color:       #80b8ff;
+}
+.p2-hint-a {
+  font-size:   0.80rem;
+  color:       rgba(200, 220, 255, 0.80);
+  line-height: 1.55;
+}
+
+.p2-hint-close {
+  align-self:   center;
+  padding:      10px 28px;
+  border-radius: 10px;
+  border:       1px solid rgba(80,180,255,0.35);
+  background:   rgba(80,140,255,0.12);
+  color:        #80c8ff;
+  font-family:  inherit;
+  font-size:    0.84rem;
+  font-weight:  600;
+  cursor:       pointer;
+  transition:   background 0.2s, box-shadow 0.2s;
+  margin-top:   4px;
+}
+.p2-hint-close:hover {
+  background:  rgba(80,140,255,0.25);
+  box-shadow:  0 0 20px rgba(80,140,255,0.30);
+}
+
+/* ── Observation prompt (contextual) ─────────────────────────────────────────── */
+
+.p2-obs-prompt {
+  position:        absolute;
+  bottom:          56px;
+  left:            50%;
+  transform:       translateX(-50%);
+  z-index:         20;
+  display:         flex;
+  align-items:     center;
+  gap:             10px;
+  padding:         10px 20px;
+  border-radius:   30px;
+  background:      rgba(10,20,50,0.85);
+  border:          1px solid rgba(80,140,255,0.25);
+  backdrop-filter: blur(10px);
+  white-space:     nowrap;
+  animation:       fadeSlideIn 0.4s ease;
+  box-shadow:      0 4px 24px rgba(0,0,0,0.40);
+}
+.p2-obs-icon { font-size: 1.1rem; }
+.p2-obs-text {
+  font-size:   0.80rem;
+  color:       rgba(200, 225, 255, 0.85);
+  font-weight: 500;
+}
