@@ -1,0 +1,47 @@
+/* ── Global resets & tokens ─────────────────────────────────── */
+:root {
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  --color-bg:       #0d1b2e;
+  --color-surface:  #0f2040;
+  --color-border:   rgba(99, 170, 255, 0.12);
+  --color-text:     #e2eeff;
+  --color-muted:    #64748b;
+
+  --color-blue:     #3b82f6;
+  --color-amber:    #f59e0b;
+  --color-green:    #34d399;
+
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+/* Scrollbar (for any overflow panels) */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: rgba(99, 170, 255, 0.2); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(99, 170, 255, 0.4); }

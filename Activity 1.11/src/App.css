@@ -1,0 +1,244 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   App.css — Syringe Compressibility Experiment
+   Dark lab aesthetic: glassmorphism header/footer, premium info cards
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── App shell ────────────────────────────────────────────────────────────── */
+.app-shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  background: #0b0f18;
+}
+
+/* ── Canvas (fills remaining space, behind all overlay UI) ────────────────── */
+.canvas-shell {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.canvas-shell canvas {
+  display: block;
+  width:  100% !important;
+  height: 100% !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   HEADER
+   ════════════════════════════════════════════════════════════════════════════ */
+.hud-header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 24px;
+  background: linear-gradient(
+    to bottom,
+    rgba(6, 10, 20, 0.92) 0%,
+    rgba(6, 10, 20, 0.75) 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(100, 160, 255, 0.10);
+}
+
+/* Logo (icon + text) */
+.hud-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+.hud-logo-icon { font-size: 1.5rem; line-height: 1; }
+.hud-logo-text {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(180, 210, 255, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+}
+
+/* Centre title */
+.hud-title {
+  flex: 1;
+  text-align: center;
+  font-size: 1.10rem;
+  font-weight: 800;
+  color: #dceeff;
+  margin: 0;
+  letter-spacing: -0.01em;
+
+  /* Subtle text glow */
+  text-shadow: 0 0 24px rgba(80, 160, 255, 0.35);
+}
+
+/* Right badge */
+.hud-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #64b5f6;
+  background: rgba(20, 60, 160, 0.22);
+  border: 1px solid rgba(80, 140, 255, 0.28);
+  padding: 5px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4caf50;
+  box-shadow: 0 0 8px #4caf50;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1;   transform: scale(1);   }
+  50%       { opacity: 0.5; transform: scale(0.75); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   INFO CARDS (bottom row)
+   ════════════════════════════════════════════════════════════════════════════ */
+.info-cards {
+  position: absolute;
+  bottom: 46px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 14px;
+  padding: 0 16px;
+}
+
+.info-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  width: 248px;
+  padding: 14px 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 16, 30, 0.88) 0%,
+    rgba(14, 22, 40, 0.82) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 2px solid var(--accent, #64b5f6);
+  border-radius: 12px;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  cursor: default;
+}
+
+.info-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent, #64b5f6);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* per-content colour accents */
+.info-card--air   { --accent: #66bb6a; }
+.info-card--water { --accent: #42a5f5; }
+.info-card--chalk { --accent: #bcaaa4; }
+
+.info-card__icon {
+  font-size: 1.80rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.info-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-card__title {
+  font-size: 0.80rem;
+  font-weight: 700;
+  color: #e4f0ff;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.info-card__desc {
+  font-size: 0.72rem;
+  color: var(--accent, #64b5f6);
+  margin: 0;
+  font-weight: 500;
+}
+
+.info-card__fact {
+  font-size: 0.69rem;
+  color: rgba(180, 205, 240, 0.52);
+  margin: 0;
+  line-height: 1.50;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FOOTER hint bar
+   ════════════════════════════════════════════════════════════════════════════ */
+.hud-footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  gap: 36px;
+  padding: 8px 24px;
+  background: rgba(6, 10, 18, 0.70);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hint {
+  font-size: 0.70rem;
+  color: rgba(160, 190, 240, 0.38);
+  letter-spacing: 0.03em;
+  user-select: none;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — collapse to vertical on narrow screens
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 840px) {
+  .info-cards {
+    flex-direction: column;
+    bottom: 50px;
+    left: 12px;
+    right: 12px;
+    transform: none;
+    max-height: 42vh;
+    overflow-y: auto;
+  }
+
+  .info-card {
+    width: auto;
+  }
+
+  .hud-title {
+    font-size: 0.90rem;
+  }
+
+  .hud-logo-text {
+    display: none;
+  }
+}
